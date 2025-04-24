@@ -42,6 +42,7 @@
           :class="{ hidden: !formModel.image }"
           autoplay
           muted
+          playsinline
         ></video>
 
         <div
@@ -82,6 +83,7 @@
           class="w-full max-w-80 mt-4"
           :class="{ hidden: !formModel.video }"
           controls
+          playsinline
         ></video>
       </section>
     </UCard>
@@ -154,7 +156,7 @@ let recordedChunks: Blob[] = [];
 let currentStream: MediaStream | undefined;
 let progressInterval: string | number | NodeJS.Timeout | undefined;
 let stopTimeout: string | number | NodeJS.Timeout | undefined;
-let videoBlob = null;
+let videoFile: File | undefined;
 
 const formModel = ref<{
   image: File | null;
@@ -180,6 +182,8 @@ const initCamera = async () => {
     currentStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: "user",
+        width: { min: 640, ideal: 1280, max: 1920 },
+        height: { min: 480, ideal: 960, max: 1440 },
       },
       audio: false,
     });
@@ -192,12 +196,12 @@ const initCamera = async () => {
     };
 
     mediaRecorder.onstop = () => {
-      videoBlob = new Blob(recordedChunks, {
+      videoFile = new File(recordedChunks, "selfieVideo.mp4", {
         type: "video/mp4",
       });
-      const url = URL.createObjectURL(videoBlob);
+      const url = URL.createObjectURL(videoFile);
       recordedVideoPreview.value!.src = url;
-      formModel.value.video = videoBlob as File;
+      formModel.value.video = videoFile;
     };
   } catch (error: unknown) {
     toast.add({
@@ -293,16 +297,12 @@ const handleFileChange = async (e: Event) => {
   try {
     const processedfile = await useNuxtApp().$compressor.compress(file);
 
-    fileReader.readAsDataURL(processedfile as File);
+    fileReader.readAsDataURL(processedfile);
     fileReader.addEventListener("load", () => {
       idPreviewImage.value = fileReader.result;
-      const image = new File(
-        [processedfile as File],
-        (processedfile as File).name,
-        {
-          type: (processedfile as File).type,
-        }
-      );
+      const image = new File([processedfile], file.name, {
+        type: processedfile.type,
+      });
 
       imagePreview.value!.classList.remove("hidden");
       imagePreview.value!.src = idPreviewImage.value as string;

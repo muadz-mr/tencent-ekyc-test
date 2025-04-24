@@ -19,9 +19,9 @@ export default defineEventHandler(async (_event) => {
         }
 
         if (field.filename && value instanceof Blob) {
-          newFormData.append(field.name!, value, field.filename);
+          newFormData.append(field.name ?? "", value, field.filename);
         } else {
-          newFormData.append(field.name!, value);
+          newFormData.append(field.name ?? "", value);
         }
       });
     }

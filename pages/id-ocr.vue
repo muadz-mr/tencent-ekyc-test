@@ -210,16 +210,12 @@ const handleFileChange = async (e: Event) => {
   try {
     const processedfile = await useNuxtApp().$compressor.compress(file);
 
-    fileReader.readAsDataURL(processedfile as File);
+    fileReader.readAsDataURL(processedfile);
     fileReader.addEventListener("load", () => {
       idPreviewImage.value = fileReader.result;
-      const image = new File(
-        [processedfile as File],
-        (processedfile as File).name,
-        {
-          type: (processedfile as File).type,
-        }
-      );
+      const image = new File([processedfile], file.name, {
+        type: processedfile.type,
+      });
 
       imagePreview.value!.classList.remove("hidden");
       imagePreview.value!.src = idPreviewImage.value as string;
