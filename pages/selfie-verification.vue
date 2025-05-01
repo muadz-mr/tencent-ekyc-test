@@ -88,6 +88,9 @@
       </section>
     </UCard>
 
+    <div>Video size: {{ formModel.video?.size }}</div>
+    <div>Video type: {{ formModel.video?.type }}</div>
+
     <UButton
       v-if="formModel.image && formModel.video"
       label="Verify selfie"
@@ -131,12 +134,12 @@
       variant="ghost"
       leading-icon="i-lucide-arrow-left"
       :to="{ name: 'index' }"
+      :disabled="isLoading || isRecording"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { NuxtError } from "#app";
 import type { TApiResponse, TVerifySelfieData } from "~/types";
 
 const toast = useToast();
@@ -182,8 +185,8 @@ const initCamera = async () => {
     currentStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: "user",
-        width: { min: 640, ideal: 1280, max: 1920 },
-        height: { min: 480, ideal: 960, max: 1440 },
+        width: 640,
+        height: 480,
       },
       audio: false,
     });
@@ -206,7 +209,7 @@ const initCamera = async () => {
   } catch (error: unknown) {
     toast.add({
       title: "Error",
-      description: (error as MediaError).message,
+      description: (error as MediaError).message || getErrorMessage(error),
       color: "error",
     });
   }
@@ -220,7 +223,7 @@ const resetProgress = () => {
 const startRecording = () => {
   if (!mediaRecorder || mediaRecorder.state !== "inactive") return;
 
-  const duration = 5;
+  const duration = 3;
   recordedChunks = [];
 
   mediaRecorder.start();
@@ -270,7 +273,7 @@ const verifySelfie = async () => {
   } catch (error: unknown) {
     toast.add({
       title: "Error",
-      description: (error as NuxtError).statusMessage,
+      description: getErrorMessage(error) || "Error verifying your selfie.",
       color: "error",
     });
   } finally {
@@ -313,7 +316,7 @@ const handleFileChange = async (e: Event) => {
   } catch (error: unknown) {
     toast.add({
       title: "Error",
-      description: (error as NuxtError).message || "Error compressing image.",
+      description: getErrorMessage(error) || "Error compressing image.",
       color: "error",
     });
   } finally {

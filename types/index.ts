@@ -15,6 +15,16 @@ export type TApiError = {
   errors?: object;
 };
 
+export type TError = {
+  data: {
+    data?: unknown | undefined;
+    message: string;
+    error: boolean;
+    statusCode: string;
+    statusMessage: string;
+  } & Error;
+};
+
 export type TIdData = {
   request_id: string;
   head_portrait: string;

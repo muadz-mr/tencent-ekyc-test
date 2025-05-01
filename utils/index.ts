@@ -1,3 +1,5 @@
+import type { NuxtError } from "#app";
+import type { TError } from "~/types";
 import { AxiosError } from "axios";
 
 export const throwRequestError = (error: unknown) => {
@@ -13,12 +15,13 @@ export const throwRequestError = (error: unknown) => {
       errors = error.response?.data?.errors;
     }
   } else {
-    message = (error as { message: string }).message;
+    message = (error as { message: string }).message || (error as string);
   }
 
   throw createError({
     statusCode: code,
     statusMessage: message,
+    message,
     data: { errors },
   });
 };
@@ -34,4 +37,12 @@ export const formatLabel = (key: string) => {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+};
+
+export const getErrorMessage = (error: unknown) => {
+  return (
+    (error as TError).data?.message ||
+    (error as NuxtError).message ||
+    String(error)
+  );
 };

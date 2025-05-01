@@ -91,7 +91,6 @@
 </template>
 
 <script setup lang="ts">
-import type { NuxtError } from "#app";
 import type { TApiResponse, TEnum, TIdData } from "~/types";
 
 const toast = useToast();
@@ -136,7 +135,7 @@ const getDocumentTypes = async () => {
   } catch (error: unknown) {
     toast.add({
       title: "Error",
-      description: (error as NuxtError).statusMessage,
+      description: getErrorMessage(error) || "Error fetching document types.",
       color: "error",
     });
   } finally {
@@ -182,7 +181,7 @@ const analyse = async () => {
   } catch (error: unknown) {
     toast.add({
       title: "Error",
-      description: (error as NuxtError).statusMessage,
+      description: getErrorMessage(error) || "Error validating your ID.",
       color: "error",
     });
   } finally {
@@ -224,7 +223,7 @@ const handleFileChange = async (e: Event) => {
   } catch (error: unknown) {
     toast.add({
       title: "Error",
-      description: (error as NuxtError).message || "Error compressing image.",
+      description: getErrorMessage(error) || "Error compressing image.",
       color: "error",
     });
   } finally {
